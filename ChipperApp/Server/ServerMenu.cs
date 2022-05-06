@@ -53,9 +53,9 @@ namespace Server
                 case 8:
                     server.MOSTRARCHIPS();
                     break;
-                case 9:
+                /*case 9:
                     server.LEERFECHA();
-                    break;
+                    break;*/
                 default:
                     Console.WriteLine("La opción ingresada no es válida");
                     break;
