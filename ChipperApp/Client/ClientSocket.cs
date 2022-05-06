@@ -43,7 +43,7 @@ namespace Client
         public void ListenForMessages()
         {
             try
-            {                
+            {
                 ClientMenu.MenuClient();
                 while (_keepConnection)
                 {
@@ -70,8 +70,8 @@ namespace Client
                         ClientMenu.ExecuteMenuOption(Int32.Parse(message), this);
                         var dataSize = ReceiveHeader(_socketHelper);
                         string response = ReceiveContent(_socketHelper, dataSize);
-                        ProcessResponse(response); //devuelve un string o se manda a pantalla directamente?
-                        
+                        string printResponseResult = ProcessResponse(response); //devuelve un string o se manda a pantalla directamente?
+                        Console.WriteLine(printResponseResult); //se necesita o lo hace el case directamente?
                     }
                     catch (FormatException)
                     {
@@ -90,7 +90,7 @@ namespace Client
             }
         }
 
-        private void ProcessResponse(string response) //es un string o se manda a pantalla directamente?
+        private string ProcessResponse(string response) //es un string o se manda a pantalla directamente?
         {
             if (string.Equals(Parser.GetState(response), Protocol.OK_STATE))
             {
@@ -103,7 +103,7 @@ namespace Client
                 switch (action) //según la petición que se haya realizado es como se muestra la respuesta que dio el servidor
                 {
                     case Protocol.ACTION_CLIENT_ADD_USER:
-                        Console.WriteLine(Parser.GetDescription(response)); 
+                        Console.WriteLine(Parser.GetDescription(response));
                         break;
                     case Protocol.ACTION_CLIENT_LOGIN:
                         Console.WriteLine(Parser.GetDescription(response));
@@ -121,14 +121,13 @@ namespace Client
                     case Protocol.ACTION_PUBLISH_CHIP:
                         Console.WriteLine(Parser.GetDescription(response));
                         break;
-                    case Protocol.ACTION_NOTIFICATION:                                        
+                    case Protocol.ACTION_NOTIFICATION:
                         string[] notifications = Parser.GetDescription(response).Split("&");
                         foreach (String n in notifications)
                         {
                             string[] notificationFields = n.Split("|");
                             Console.WriteLine("idNotificacion: " + notificationFields[0] + "  chip: " + notificationFields[1]);
                         }
-
                         Console.WriteLine("Desea responder una notificación? (S/N)");
                         string resp = Console.ReadLine();
                         if (resp.ToLower().Equals("s"))
@@ -136,29 +135,20 @@ namespace Client
                             //Desde aqui se larga la posibilidad de responder a las notificaciones        
                             ClientMenu.ExecuteMenuOption(Protocol.ACTION_NOTIFICATION_REPLY, this);
                         }                        
-
                         break;
                     case Protocol.ACTION_VIEW_PROFILE:
                         string[] userinfo = Parser.GetDescription(response).Split("&");                        
                         Console.WriteLine("Usuario: " + userinfo[0]);
                         Console.WriteLine("Nombre: " + userinfo[1] + " " + userinfo[2]);
                         Console.WriteLine("Cantidad de seguidores: " + userinfo[3]);
-                        Console.WriteLine("Cantidad de cuentas que sigue: " + userinfo[4]);                        
+                        Console.WriteLine("Cantidad de cuentas que sigue: " + userinfo[4]);
+                        string[] chips =userinfo[5].Split("|");
                         Console.WriteLine("Publicaciones:");
-                        if (userinfo.Length > 5)
+                        foreach (String c in chips)
                         {
-                            string[] chips =userinfo[5].Split("|");
-                            
-                            foreach (String c in chips)
-                            {
-                                string[] notificationFields = c.Split("|");
-                                Console.WriteLine(c);
-                            }
-                        } else
-                        {
-                            Console.WriteLine("0");
-                        }                          
-
+                            string[] notificationFields = c.Split("|");
+                            Console.WriteLine(c);
+                        }
                         break;
                     case Protocol.ACTION_REPLY_CHIP_LIST:
                         //user.Username + "@"+ c.ChipId + "|" + c.Content + "&";
@@ -170,24 +160,29 @@ namespace Client
                             string[] chipFields = c.Split("|");
                             Console.WriteLine("idchip: " + chipFields[0] + "  chip: " + chipFields[1]);
                         }
-                        //Desde aqui se ejcuta la opcion para responder a la publicación que se selecciona
-                         ClientMenu.ExecuteMenuOption(Protocol.ACTION_REPLY_CHIP, this);                      
+                        //DESDE AQUI SE LARGA LA PUBLICACION DE LA RESPUESTA A UN CHIP QUE SE SELECCIONA
+                        Console.Write("Ingresar el chip a responder: ");
+                        string idChip = Console.ReadLine();
+                        Console.Write("Ingresar la respuesta: ");
+                        string chipResponse = Console.ReadLine();
+                        ///CODIGO PARA ENVIAR....con ACTION_REPLY_CHIP = 18                        
+                        // string message = "REQ" + "#" + "18" + "#" + userName + "#" + chipid + "#" + chireply;
+                        //SendRequest(message, connection); //como envio desde aqui, SendREquest está en clientFuncionalities
+                        //ClientFunctionalities.SendRequest
+
                         break;
                     case Protocol.ACTION_REPLY_CHIP:
                         Console.WriteLine(Parser.GetDescription(response));
                         break;
                     case Protocol.ACTION_LOGOUT:
-                        Console.WriteLine(Parser.GetDescription(response));
-                        _sessionToken = String.Empty;
                         break;
                     case Protocol.ACTION_DISCONNECT:
-                        CloseConnection();
                         break;
                 }
                 
 
             }
-            //return Parser.GetParameterAt(response, 0);
+            return Parser.GetParameterAt(response, 0);
         }
 
         public void CloseConnection()

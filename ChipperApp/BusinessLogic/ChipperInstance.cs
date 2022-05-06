@@ -96,15 +96,7 @@ namespace BusinessLogic
         public void BlockUser(string user)
         {
             User userBlocked = users.Find(u => (u.Username == user));
-            if (userBlocked != null)
-            {
-                userBlocked.Blocked = true;
-                Console.WriteLine("Usuario bloquedo");
-            }
-            else
-            {
-                Console.WriteLine("Usuario no válido");
-            }
+            userBlocked.Blocked = true;
         }
 
         public void UnBlockUser(string user)

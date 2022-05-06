@@ -77,7 +77,8 @@ namespace Server
                         {
                             usersSearch.Add(userFind);
                         }
-                }                
+                }
+                //string reply = "RES" + "#" + "03" + "#"; No se necesita armar la respuesta, lo hace el buildResponse
                 string reply = String.Empty;
                 foreach (User u in usersSearch)
                 {                    
@@ -96,13 +97,13 @@ namespace Server
             try
             {
                 User userFollow = _chipper.users.Find(u => (u.Username == username));
-                User user = GetLoggedUser(session);
                 if (userFollow != null)
                 {
-                    user.Following.Add(userFollow); 
-                    userFollow.Followers.Add(user);
+                    //userLogged.Following.Add(userFollow); //Necesito el usuario logueado para guardar en las listas de followes y following
+                    //userFollow.Followers.Add(userLogged);
                 }
-                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_FOLLOW, Protocol.OK_STATE, "Siguiendo al usuario.");                 
+                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_FOLLOW, Protocol.OK_STATE, "Siguiendo al usuario."); 
+                //debería responder con el usuario seguido o tal vez con la lista de usuarios seguidos?
             }
             catch
             {
@@ -110,12 +111,13 @@ namespace Server
             }
         }
 
-        public string PublishChip(string chip, string session) 
+
+        public string PublishChip(string username, string chip, string image, string session) //usuario logueado?
         {
             try
             {
-                User user = GetLoggedUser(session);                                
-                Chip newChip = CreateNewChip(chip, user); //al crearlo ya lo agrega al usuario  logueado
+                User user = _chipper.users.Find(u => (u.Username == username));
+                Chip newChip = CreateNewChip(chip, session); //al crearlo ya lo agrega al usuario  logueado
                 _chipper.chips.Add(newChip); //lo agrega a la lista general de chips
 
                 List<User> followers = _chipper.GetFollowers(user); //notificaciones para los seguidores
@@ -134,20 +136,23 @@ namespace Server
             }
             catch
             {
-                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_PUBLISH_CHIP, Protocol.ERROR_STATE, "Chip no pudo ser publicado.");
+                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_FOLLOW, Protocol.ERROR_STATE, "Chip no pudo ser publicado.");
             }            
         }
 
 
         //create chip sin imagenes
-        public Chip CreateNewChip (string chip, User user)
+        public Chip CreateNewChip (string chip, string session)
         {
             List<Chip> replies = new List<Chip>();
-            
+            List<string> images = new List<string>();
+            User user = GetLoggedUser(session);
+
             int chipId;
             chipId = _chipper.GetChipId() + 1;
-                       
-            Chip newChip = new Chip(chipId, user, chip, DateTime.Now, replies);            
+            
+            Chip newChip = new Chip(chipId, user, chip, images, DateTime.Now, replies);
+            
             user.Chips.Add(newChip); //lo agrega al user que lo publica
 
             _chipper.SetChipId(chipId);
@@ -156,18 +161,19 @@ namespace Server
         }
         
 
+
         public string GetNotifications(string session)
         {
             try
             {               
                 User user = GetLoggedUser(session);
                 List<Notification> notifications = user.Notifications;                
+                //string reply = "RES" + "#" + "06" + "#"; //No se necesita armar la respuesta, lo hace el buildResponse
                 string reply = string.Empty;
                 foreach (Notification n in notifications)
                 {
-                    reply = reply + n.NotificationId.ToString() + "|" + n.Chip.Content + "&";                                    
+                    reply = reply + n.NotificationId.ToString() + "|" + n.Chip.Content + "&";
                 }
-                reply = reply.Remove(reply.Length - 1,1); //Elimna el ultimo &                
                 return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_NOTIFICATION, Protocol.OK_STATE, reply);
             }
             catch
@@ -181,49 +187,41 @@ namespace Server
             try
             {
                 string reply = string.Empty;
-                int followers = 0;
-                int following = 0;
                 User userProfile = _chipper.users.Find(u => (u.Username == username));
                 if (userProfile != null)
                 {
-                    //los counts quedan vacios en lugar de cero, en caso que no tenga seguidores o seguidos. Hay que arreglar aca o del lado del processResponse
-                    followers = followers + userProfile.Followers.Count;
-                    following = following + userProfile.Following.Count;    
-                    reply = userProfile.Username + "&" + userProfile.Name + "&" + userProfile.Lastname + "&" + followers + "&" + following + "&";
+                    reply = reply + userProfile.Username + "&" + userProfile.Name + "&" + userProfile.Lastname + "&" + userProfile.Following.Count + "&" + userProfile.Followers.Count + "&";
                     var orderedList = userProfile.Chips.OrderBy(c => c.DatePosted).Reverse().ToList();                        
                     foreach (Chip c in orderedList)
                     {
                         Console.WriteLine(c.Content);
                         reply = reply + c.Content + "|";
                     }
-                    reply = reply.Remove(reply.Length - 1, 1); //Elimna el ultimo caracter, | si tiene chips, & sino tiene                
-                }                
-                Console.WriteLine("Asi queda la respuesta: " + reply);
+                }
                 return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_VIEW_PROFILE, Protocol.OK_STATE, reply);
             }
             catch
             {
-                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_VIEW_PROFILE, Protocol.ERROR_STATE, "No se pudo obtener el perfil del usuario solicitado.");
+                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_NOTIFICATION, Protocol.ERROR_STATE, "No se pudo obtener el perfil del usuario solicitado.");
             }            
         }
 
-        public string ReplyChipList(string username)
+        public string ReplyChipList(string username, string session)
         {
             try
             {
                 string reply = string.Empty;
-                User userReply = _chipper.users.Find(u => (u.Username == username));
-                if (userReply != null)
+                User user = _chipper.users.Find(u => (u.Username == username));
+                if (user != null)
                 {
-                    reply = userReply.Username + "@"; //No devuelve el usuario logueado en el mensaje de respuesta.
+                    reply = user.Username + "@"; //No devuelve el usuario logueado en el mensaje de respuesta.
                                                  //Se necesita el user al que se le responde, porque solo se envia chipid y contenido en la respuesta. Se necesita en la vuelta para 
                                                  //agregar al la lista de replies                                                 
-                    foreach (Chip c in userReply.Chips)
+                    foreach (Chip c in user.Chips)
                     {
                         reply = reply + c.ChipId + "|" + c.Content + "&";
                     }
                 }
-                reply = reply.Remove(reply.Length - 1, 1); //Elimna el ultimo &      
                 return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_REPLY_CHIP_LIST, Protocol.OK_STATE, reply);
             }
             catch
@@ -238,7 +236,7 @@ namespace Server
             try
             {
                 User user = GetLoggedUser(session);
-                Chip chipReply = CreateNewChip(chipreply, user);
+                Chip chipReply = CreateNewChip(chipreply, session);
                 _chipper.chips.Add(chipReply); //lo agrega a la lista general de chips
 
                 int chipIdOriginal = Convert.ToInt32(chipid);
@@ -250,7 +248,8 @@ namespace Server
             catch
             {
                 return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_REPLY_CHIP, Protocol.ERROR_STATE, "No se pudo publicar la respuesta.");
-            }                     
+            }
+
         }
 
         public string Logout(string session)
@@ -265,15 +264,6 @@ namespace Server
             {
                 return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_LOGOUT, Protocol.ERROR_STATE, "Ocurrió un error al procesar la solicitud.");
             }
-        }
-
-        public string ReplyNotification(string notificationid, string chipreply, string session)
-        {
-            int notificationOriginal = Convert.ToInt32(notificationid);
-            Notification notificationReplyChip = _chipper.notifications.Find(n => (n.NotificationId == notificationOriginal));
-            int chipOriginal = notificationReplyChip.Chip.ChipId;
-            string chipid = Convert.ToString(chipOriginal);
-            return ReplyChip(chipid, chipreply, session);            
         }
 
         public void CloseConnection()

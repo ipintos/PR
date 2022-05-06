@@ -21,11 +21,11 @@ namespace Server
         {
             Console.WriteLine("Lista de usuarios del sistema");
             Console.WriteLine("-----------------------------");
-            Console.WriteLine("");            
+            Console.WriteLine("");
             List<User> users = _chipper.AllUsers();
             foreach (User user in users)
             {
-                Console.WriteLine("User: " + user.Username + " Nombre: " + user.Name + " bloqueado: " + user.Blocked);
+                Console.WriteLine(user.Username);
             }
             Console.WriteLine(""); Console.WriteLine("");
         }
@@ -76,7 +76,7 @@ namespace Server
             }
             foreach(Chip chip in textFind)
             {
-                //Console.WriteLine("Usuario: " + chip.User); //hay que extraer el username
+                Console.WriteLine("Usuario: " + chip.User);
                 Console.WriteLine("Chip: " + chip.Content);
             }            
         }
@@ -95,9 +95,9 @@ namespace Server
         internal void TopUsersByActivity()
         {
             Console.WriteLine("Usuarios más activos");
-            Console.WriteLine("Periodo - Fecha desde (DD/MM/AA):  ");
+            Console.WriteLine("Periodo - Fecha desde:  ");
             string sDate = Console.ReadLine();
-            Console.WriteLine("Periodo - Fecha hasta (DD/MM/AA):  ");
+            Console.WriteLine("Periodo - Fecha hasta:  ");
             string eDate = Console.ReadLine();            
             DateTime startDate = Convert.ToDateTime(sDate);
             DateTime endDate = Convert.ToDateTime(eDate);
@@ -113,8 +113,8 @@ namespace Server
                     ClientActivity cl = topUsersActivity.Find(cl => cl.User == c.User.Username);
                     if (cl == null)
                     {
-                        ClientActivity clnew = new ClientActivity(user.Username,1);                        
-                        topUsersActivity.Add(clnew);
+                        cl.Activity = 1;
+                        topUsersActivity.Add(cl);
                     }
                     else
                     {
@@ -156,7 +156,7 @@ namespace Server
             Console.WriteLine(""); Console.WriteLine("");
         }
 
-        //AGREGADO POR FUERA DE LOS REQUERIMIENTOS PARA PRUEBAS
+      //AGREGADO POR FUERA DE LOS REQUERIMIENTOS PARA PRUEBAS
         public void CARGARDATOS()
         {
             List<User> followers1 = new List<User>();
@@ -245,9 +245,6 @@ namespace Server
                 Console.WriteLine("hora Now: " + DateTime.Now);
                 Console.WriteLine("hora today: " + DateTime.Today);                
             }
-
-          
-
             Console.WriteLine("datos cargados");
         }
 
