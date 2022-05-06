@@ -17,17 +17,30 @@ namespace BusinessLogic
 
         public Chip(int chipid, User user, string content, List<string> image, DateTime datePosted, List<Chip> replies)
         {
-            this.chipid = ChipId;
+            this.chipid = chipid;
             this.user = user;
             this.content = content;
             this.image = image;
             this.datePosted = datePosted;
             this.replies = replies;
         }
+        
+        //sin imagenes
+        public Chip(int chipid, User user, string content, DateTime datePosted, List<Chip> replies)
+        {
+            this.chipid = chipid;
+            this.user = user;
+            this.content = content;
+            //this.image = image;
+            this.datePosted = datePosted;
+            this.replies = replies;
+        }
+
+
 
         public int ChipId { get { return chipid; } }
 
-        public string User { get { return content; } }
+        public User User { get { return user; } }
 
         public string Content { get { return content; } }
 
@@ -36,5 +49,7 @@ namespace BusinessLogic
         public DateTime DatePosted { get { return datePosted; } }
 
         public List<Chip> Replies { get { return replies; } }
+
+
     }
 }

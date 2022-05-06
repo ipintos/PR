@@ -48,7 +48,7 @@ namespace Server
             }
             catch(Exception ex)
             {
-                Console.WriteLine($"Error al iniciar el Server.");
+                Console.WriteLine($"Error al iniciar el Server.{ex}");
             }
         }
 
@@ -61,7 +61,7 @@ namespace Server
             }
             catch(Exception e)
             {
-                Console.WriteLine($"Error al iniciar la escucha de clientes.");
+                Console.WriteLine($"Error al iniciar ListenForClients.{e}");
             }
         }
 
@@ -80,7 +80,7 @@ namespace Server
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error al iniciar el cliente");
+                Console.WriteLine($"StartClient {e}");
             }
         }
 
@@ -128,12 +128,13 @@ namespace Server
                     client.Connection.Shutdown(SocketShutdown.Both);
                     client.Connection.Close();
                 }
+                Console.WriteLine("cerré las conexiones ahora cierro el server?");
                 _serverSocket.Shutdown(SocketShutdown.Both);
                 _serverSocket.Close();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al cerrar la conexión desde el Server.");
+                Console.WriteLine($"Error al cerrar la conexión desde el Server. {ex}");
             }
         }
 

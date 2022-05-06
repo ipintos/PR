@@ -21,6 +21,7 @@ namespace Client
            
             string parameters = $"{userName}{Protocol.MESSAGE_SEPARATOR}{password}";
             var message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_CLIENT_LOGIN, Protocol.OK_STATE, parameters);
+
             SendRequest(message, connection);
         }
 
@@ -54,13 +55,14 @@ namespace Client
 
         public static void FollowUser(ClientSocket connection)
         {
+            //Previa busqueda?
             Console.WriteLine("Seguimiento de Usuarios");
             Console.WriteLine("-----------------------");
             Console.WriteLine("");
-            Console.Write("Ingrese Usuario a Seguir: ");
+            Console.Write("Ingrese Usuario a Seguir: ");            
             string userName = Console.ReadLine();
-            string userLogged = ""; // ChipperInstance._userLogged; el usuario logueado se debe controlar desde el server
-            string message = "REQ" + "#" + "04" + "#" + userLogged + "#" + userName;
+            string parameters = userName;
+            var message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_FOLLOW, Protocol.OK_STATE, parameters);            
             SendRequest(message, connection);
         }
 
@@ -71,15 +73,12 @@ namespace Client
             Console.WriteLine("");
             Console.Write("Ingrese Publicación: ");
             string chip = Console.ReadLine();
-            //string userLogged = ""; // ChipperInstance._userLogged; el usuario logueado se debe controlar desde el server
-            string image = string.Empty;
-            string message = "REQ" + "#" + "15" + "#" /*+ userLogged + "#"*/ + chip;
             Console.Write("Desea adjuntar imágenes? (S/N)");
             string resp = Console.ReadLine();
 
             if (resp.ToLower().Equals("s"))
             {
-                message = message + "#";
+                //message = message + "#";
                 List<string> images = new List<string>();
                 List<string> paths = new List<string>();
                 int imageNumber = 0;
@@ -89,25 +88,26 @@ namespace Client
                     Console.WriteLine("Ingrese ubicación de la imagen: ");
                     path = Console.ReadLine();
                     paths.Add(path);
-                    image = new FileInfo(path).Name;
+                    string image = new FileInfo(path).Name;
                     images.Add(image);
                     imageNumber++;
                     Console.WriteLine(imageNumber);
                     Console.Write("Desea adjuntar otra imagen? (S/N) ");
                     resp = Console.ReadLine();
                 }
-                message = message + images.Count.ToString() + "#";
+                /*message = message + images.Count.ToString() + "#";
                 message = message + images[0];
                 for (int i = 1; i < images.Count; i++)
                 {
                     message = message + "&" + images[i];
                 }
-                SendFileRequest(message, paths, connection);
+                SendFileRequest(message, paths, connection);*/
             }
             else
             {
-                message = "REQ" + "#" + "05" + "#" /*+ userLogged + "#"*/ + chip + "#" + image;
-                SendRequest(message, connection);
+                string parameters = $"{chip}{Protocol.MESSAGE_SEPARATOR}";
+                string message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_PUBLISH_CHIP, Protocol.OK_STATE, parameters);
+                SendRequest(message, connection);                
             }
         }
 
@@ -122,7 +122,8 @@ namespace Client
             string name = Console.ReadLine();
             if (string.IsNullOrEmpty(userName)) userName = "&";
             if (string.IsNullOrEmpty(name)) name = "&";
-            string parameters = $"{userName}{Protocol.MESSAGE_SEPARATOR}{name}{Protocol.MESSAGE_SEPARATOR}";                  
+            string parameters = $"{userName}{Protocol.MESSAGE_SEPARATOR}" + 
+                $"{name}{Protocol.MESSAGE_SEPARATOR}";                  
             string message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_SEARCH, Protocol.OK_STATE, parameters);
             SendRequest(message, connection);
         }
@@ -132,8 +133,8 @@ namespace Client
             Console.WriteLine("Notificaciones");
             Console.WriteLine("--------------");
             Console.WriteLine(" ");
-            string userName = Console.ReadLine();
-            string message = "REQ" + "#" + "06" + "#" + userName; //username?
+            string parameters = string.Empty;
+            var message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_NOTIFICATION, Protocol.OK_STATE, parameters);                
             SendRequest(message, connection);   
         }
 
@@ -144,23 +145,50 @@ namespace Client
             Console.WriteLine(" ");
             Console.WriteLine("Ingrese usuario a visualizar: ");
             string userName = Console.ReadLine();
-            string message = "REQ" + "#" + "07" + "#" + userName;
-            SendRequest(message, connection);
+            string parameters = userName;
+            var message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_VIEW_PROFILE, Protocol.OK_STATE, parameters);            
+            SendRequest(message, connection);           
         }
 
-        public static void ReplyChip(ClientSocket connection)
+        public static void ReplyChipList(ClientSocket connection)
         {
             Console.WriteLine("Responder a una publicación");
             Console.WriteLine("---------------------------");
             Console.WriteLine(" ");
             Console.WriteLine("Ingrese usuario cuyas publicaciones va a responder: ");
             string userName = Console.ReadLine();
-            string message = "REQ" + "#" + "08" + "#" + userName;
+            string parameters = userName;
+            var message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_REPLY_CHIP_LIST, Protocol.OK_STATE, parameters);
+            SendRequest(message, connection);
+        }
+
+        public static void ReplyChip(ClientSocket connection)
+        {
+            Console.Write("Ingresar el chip a responder: ");
+            string idChip = Console.ReadLine();
+            Console.Write("Ingresar la respuesta: ");
+            string chipResponse = Console.ReadLine();
+            string parameters = $"{idChip}{Protocol.MESSAGE_SEPARATOR}" +
+                $"{chipResponse}{Protocol.MESSAGE_SEPARATOR}";
+            var message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_REPLY_CHIP, Protocol.OK_STATE, parameters);
+            SendRequest(message, connection);
+        }
+
+        public static void NotificationReply(ClientSocket connection)
+        {
+            Console.Write("Ingresar la notificación a responder: ");
+            string idNotification = Console.ReadLine();
+            Console.Write("Ingresar la respuesta: ");
+            string chipResponse = Console.ReadLine();
+            string parameters = $"{idNotification}{Protocol.MESSAGE_SEPARATOR}" +
+                $"{chipResponse}{Protocol.MESSAGE_SEPARATOR}";
+            var message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_NOTIFICATION_REPLY, Protocol.OK_STATE, parameters);
             SendRequest(message, connection);
         }
 
         public static void Logout(ClientSocket connection)
         {
+            //Console.WriteLine("Usuario desconectado");
             string parameters = string.Empty;
             var message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_LOGOUT, Protocol.OK_STATE, parameters);
             SendRequest(message, connection);
@@ -168,8 +196,9 @@ namespace Client
 
         public static void SendRequest(string message, ClientSocket connection)
         {
-            byte[] data = Encoding.UTF8.GetBytes(message);
+            byte[] data = Encoding.UTF8.GetBytes(message);// Conversión de datos a bytes
             byte[] header = BuildHeader(message, connection.SessionToken);
+            Console.WriteLine("el session token dentro de SendRequest: " + connection.SessionToken);
             connection.SendHeader(header);
             connection.SendMessage(data);
         }
@@ -189,7 +218,7 @@ namespace Client
         {
             byte[] data = Encoding.UTF8.GetBytes(message);
             byte[] header = BuildHeader(message, connection.SessionToken);
-            connection.SendHeader(header);
+            connection.SendHeader(header/*, connection.SessionToken*/);
             connection.SendMessage(data);
             connection.SendFile(path);
         }
