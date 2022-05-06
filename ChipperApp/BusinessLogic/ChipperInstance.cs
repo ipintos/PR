@@ -42,9 +42,8 @@ namespace BusinessLogic
 
         public List<User> Users { get { return users; } set { users = value; } }
         public List<Chip> Chips { get { return chips; } set { chips = value; } }
-        public List<Notification> Notification { get { return notifications; } set { notifications = value; } }
+        public List<Notification> Notifications { get { return notifications; } set { notifications = value; } }
         public List<User> UsersLoggd { get { return usersLogged; } set { usersLogged = value; } }
-       /* public List<User> UsersBlocked { get { return usersBlocked; } set { usersBlocked = value; } }*/
 
         public void AddUserToList(User user)
         {

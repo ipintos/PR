@@ -23,7 +23,12 @@ namespace BusinessLogic
         public User()
         {
         }
-        
+
+        public User(string username)
+        {
+            this.username = username;
+        }
+
         public User(string username, string password, string name, string lastname, string picture, List<User> followers, List<User> following, List<Chip> chips, List<Notification> notifications)
         {
             this.username = username;
@@ -59,6 +64,12 @@ namespace BusinessLogic
         public List<Chip> Chips { get { return chips; } }
 
         public List<Notification> Notifications { get { return notifications; } }
+
+        public override bool Equals(object user)
+        {
+            var newUser = user as User;
+            return this.Username == newUser.Username;
+        }
 
     }
 }
