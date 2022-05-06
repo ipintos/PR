@@ -36,7 +36,5 @@ namespace BusinessLogic
         public DateTime DatePosted { get { return datePosted; } }
 
         public List<Chip> Replies { get { return replies; } }
-
-
     }
 }

@@ -16,7 +16,7 @@ namespace Server
         public static void HandleClient(Socket connection)
         {
             var socketHelper = new SocketHelper(connection);
-            Console.WriteLine($"Client No: {Thread.CurrentThread.ManagedThreadId} started!");
+            Console.WriteLine($"Inició el cliente: {Thread.CurrentThread.ManagedThreadId}");
             bool connected = true;
             while (connected)
             {
@@ -26,7 +26,7 @@ namespace Server
                     int dataSize = requestHeader.Length;
                     string session = requestHeader.Session;
                     var content = ReceiveContent(socketHelper, dataSize);
-                    Console.WriteLine($"content {content}");
+                   /* Console.WriteLine($"content {content}");*/
                     if (string.Equals(Parser.GetActionString(content), Protocol.CLIENT_END_CONNECTION_REQUEST_COMMAND))
                     {
                         CloseClientConnection(connection);
@@ -44,7 +44,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"HandleClient {ex.Message}");
+                    Console.WriteLine($"Ocurrió un error en la conexión con el cliente.");
                     connected = false;
                 }
             }
@@ -177,9 +177,7 @@ namespace Server
             string sessionToken = headerParams[1];
             int dataLength = Int32.Parse(headerParams[0]);
             Header header = new(dataLength, sessionToken);
-            
-            Console.WriteLine($"sessionToken: {sessionToken}");
-
+            /*Console.WriteLine($"sessionToken: {sessionToken}");*/
             return header;
         }
 

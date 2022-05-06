@@ -47,6 +47,13 @@ namespace Server
                 case 6:
                     server.TopUsersByActivity();
                     break;
+                case 7:
+                    server.CARGARDATOS();
+                    break;
+                case 8:
+                    server.MOSTRARCHIPS();
+                    break;
+                //LAS OPCIONES 7 y 8 ESTAN FUERA DEL MENU PARA CARGAR DATOS Y PROBAR
                 default:
                     Console.WriteLine("La opción ingresada no es válida");
                     break;
