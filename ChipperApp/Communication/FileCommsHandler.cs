@@ -20,6 +20,7 @@ namespace Communication
             _conversionHandler = new ConversionHandler();
             _fileHandler = new FileHandler();
             _fileStreamHandler = new FileStreamHandler();
+            //_socketHelper = new SocketHelper(socket);
             _socketHelper = socket;
         }
 

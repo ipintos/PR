@@ -76,6 +76,7 @@ namespace Server
             }
             foreach(Chip chip in textFind)
             {
+                //Console.WriteLine("Usuario: " + chip.User); //hay que extraer el username
                 Console.WriteLine("Chip: " + chip.Content);
             }            
         }
@@ -84,7 +85,7 @@ namespace Server
         {
             Console.WriteLine("Usuarios con mas seguidores");
             Console.WriteLine("---------------------------");
-            var orderedList = _chipper.Users.OrderBy(u => u.Followers.Count).Reverse();
+            var orderedList = _chipper.users.OrderBy(u => u.Followers.Count).Reverse();
             foreach (User u in orderedList) //Falta acotar a 5
             {
                 Console.WriteLine("Usuario: " + u.Username + " Cantidad de seguidores: " + u.Followers.Count);
@@ -108,8 +109,8 @@ namespace Server
                 bool inRange = DateInRange(c.DatePosted, startDate, endDate);
                 if (inRange)
                 {
-                    User user = c.User;
-                    ClientActivity cl = topUsersActivity.Find(cl => cl.User == c.User.Username);
+                    //User user = _chipper.Users.Find(u => u.Username == c.User);
+                    ClientActivity cl = topUsersActivity.Find(cl => cl.User == c.User);
                     if (cl == null)
                     {
                         ClientActivity clnew = new ClientActivity(user.Username,1);                        
@@ -206,11 +207,11 @@ namespace Server
             List<string> images4 = new List<string>();
             List<string> images5 = new List<string>();
 
-            User u1 = _chipper.Users.Find(u => (u.Username == "user1"));
-            User u2 = _chipper.Users.Find(u => (u.Username == "user2"));
-            User u3 = _chipper.Users.Find(u => (u.Username == "user3"));
-            User u4 = _chipper.Users.Find(u => (u.Username == "user4"));
-            User u5 = _chipper.Users.Find(u => (u.Username == "user5"));
+            User u1 = _chipper.users.Find(u => (u.Username == "user1"));
+            User u2 = _chipper.users.Find(u => (u.Username == "user2"));
+            User u3 = _chipper.users.Find(u => (u.Username == "user3"));
+            User u4 = _chipper.users.Find(u => (u.Username == "user4"));
+            User u5 = _chipper.users.Find(u => (u.Username == "user5"));
 
             u1.Followers.Add(u2); u2.Following.Add(u1);
             u1.Followers.Add(u3); u3.Following.Add(u1);
@@ -241,9 +242,13 @@ namespace Server
                 {
                     Console.WriteLine("notificacion desde el usuario: " + n.Chip.Content);
                 }
+
                 Console.WriteLine("hora Now: " + DateTime.Now);
                 Console.WriteLine("hora today: " + DateTime.Today);                
             }
+
+          
+
             Console.WriteLine("datos cargados");
         }
 
@@ -260,10 +265,10 @@ namespace Server
             }
 
         }
-/*
+
         public void LEERFECHA()
         {
-            Console.Write("ingresar fecha DD/MM/AA :");
+            Console.Write("ingresar fecha DD/MM/AA :" );
             string sFecha = Console.ReadLine();
             DateTime fecha = Convert.ToDateTime(sFecha);
             Console.WriteLine("fecha convertida: " + sFecha);
@@ -280,7 +285,7 @@ namespace Server
             {
                 Console.WriteLine("por fuera");
             }
-        }*/
+        }
     }
 }
 

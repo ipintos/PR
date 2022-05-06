@@ -36,7 +36,7 @@ namespace Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al iniciar la conexión desde el cliente.");
+                Console.WriteLine($"Error al iniciar la conexión desde el Client. {ex}");
             }
         }
 
@@ -70,7 +70,8 @@ namespace Client
                         ClientMenu.ExecuteMenuOption(Int32.Parse(message), this);
                         var dataSize = ReceiveHeader(_socketHelper);
                         string response = ReceiveContent(_socketHelper, dataSize);
-                        ProcessResponse(response);
+                        ProcessResponse(response); //devuelve un string o se manda a pantalla directamente?
+                        
                     }
                     catch (FormatException)
                     {
@@ -84,12 +85,12 @@ namespace Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ocurrió un error al conectarse al servidor");
+                Console.WriteLine($"Ocurrió un error al conectarse al servidor: {ex}");
                 CloseConnection();
             }
         }
 
-        private void ProcessResponse(string response)
+        private void ProcessResponse(string response) //es un string o se manda a pantalla directamente?
         {
             if (string.Equals(Parser.GetState(response), Protocol.OK_STATE))
             {
@@ -98,7 +99,8 @@ namespace Client
                 {
                     _sessionToken = Parser.GetParameterAt(response, 0);
                 }
-                switch (action)
+
+                switch (action) //según la petición que se haya realizado es como se muestra la respuesta que dio el servidor
                 {
                     case Protocol.ACTION_CLIENT_ADD_USER:
                         Console.WriteLine(Parser.GetDescription(response)); 
@@ -121,21 +123,14 @@ namespace Client
                         break;
                     case Protocol.ACTION_NOTIFICATION:                                        
                         string[] notifications = Parser.GetDescription(response).Split("&");
-                        if (notifications.Length > 0)
+                        foreach (String n in notifications)
                         {
-                            foreach (String n in notifications)
-                            {
-                                string[] notificationFields = n.Split("|");
-                                Console.WriteLine("idNotificacion: " + notificationFields[0] + "  chip: " + notificationFields[1]);
-                            }
-                            ClientMenu.ExecuteMenuOption(Protocol.ACTION_NOTIFICATION_REPLY, this);
+                            string[] notificationFields = n.Split("|");
+                            Console.WriteLine("idNotificacion: " + notificationFields[0] + "  chip: " + notificationFields[1]);
                         }
-                        else
-                        {
-                            Console.WriteLine("No existen notificaciónes para el usuario.");
-                        }
+                        //Desde aqui se larga la posibilidad de responder a las notificaciones        
+                        ClientMenu.ExecuteMenuOption(Protocol.ACTION_NOTIFICATION_REPLY, this);
                         break;
-
                     case Protocol.ACTION_VIEW_PROFILE:
                         string[] userinfo = Parser.GetDescription(response).Split("&");                        
                         Console.WriteLine("Usuario: " + userinfo[0]);
@@ -146,36 +141,30 @@ namespace Client
                         if (userinfo.Length > 5)
                         {
                             string[] chips =userinfo[5].Split("|");
+                            
                             foreach (String c in chips)
                             {
                                 string[] notificationFields = c.Split("|");
                                 Console.WriteLine(c);
                             }
-                        }
-                        else
+                        } else
                         {
-                            Console.WriteLine("No existen publicaciones para este usuario.");
-                        }
-                        break;
+                            Console.WriteLine("0");
+                        }                          
 
+                        break;
                     case Protocol.ACTION_REPLY_CHIP_LIST:
+                        //user.Username + "@"+ c.ChipId + "|" + c.Content + "&";
                         string [] replyChipListInfo = Parser.GetDescription(response).Split("@");
                         string userOriginal = replyChipListInfo[0]; //usuario que hizo la publicacion original y al cual se va a responder
                         string[] chipinfo = replyChipListInfo[1].Split("&");
-                        if(chipinfo.Length > 0)
+                        foreach (String c in chipinfo)
                         {
-                            foreach (String c in chipinfo)
-                            {
-                                string[] chipFields = c.Split("|");
-                                Console.WriteLine("idchip: " + chipFields[0] + "  chip: " + chipFields[1]);
-                            }
-                            //Desde aqui se ejcuta la opcion para responder a la publicación que se selecciona
-                            ClientMenu.ExecuteMenuOption(Protocol.ACTION_REPLY_CHIP, this);
+                            string[] chipFields = c.Split("|");
+                            Console.WriteLine("idchip: " + chipFields[0] + "  chip: " + chipFields[1]);
                         }
-                        else
-                        {
-                            Console.WriteLine("No existen chips para responder.");
-                        }                  
+                        //Desde aqui se ejcuta la opcion para responder a la publicación que se selecciona
+                         ClientMenu.ExecuteMenuOption(Protocol.ACTION_REPLY_CHIP, this);                      
                         break;
                     case Protocol.ACTION_REPLY_CHIP:
                         Console.WriteLine(Parser.GetDescription(response));
@@ -188,19 +177,18 @@ namespace Client
                         CloseConnection();
                         break;
                 }
-              
+                
+
             }
-            else
-            {
-                Console.WriteLine(Parser.GetDescription(response));
-            }
+            //return Parser.GetParameterAt(response, 0);
         }
 
         public void CloseConnection()
         {
             try
             {
-                ClientFunctionalities.SendRequest($"{Protocol.METHOD_REQUEST}{Protocol.MESSAGE_SEPARATOR}{Protocol.CLIENT_END_CONNECTION_REQUEST_COMMAND}", this);
+                ClientFunctionalities.SendRequest($"REQ#{Protocol.CLIENT_END_CONNECTION_REQUEST_COMMAND}", this);
+                Console.WriteLine("Client connection closed request send");
             }
             catch
             {
@@ -208,7 +196,7 @@ namespace Client
             }
         }
 
-        public void SendHeader(byte[] message)
+        public void SendHeader(byte[] message/*, string sessionToken*/)
         {
             _socketHelper.Send(message);
         }
@@ -229,7 +217,7 @@ namespace Client
             byte[] headerBytes = helper.Receive(Protocol.HEADER_DATA_SIZE);
             string header = Encoding.UTF8.GetString(headerBytes);
             string[] headerParams = header.Split(Protocol.MESSAGE_SEPARATOR);
-            int dataLength = Int32.Parse(headerParams[0]);
+            int dataLength = Int32.Parse(headerParams[0]);// helper.Receive(Protocol.HEADER_DATA_SIZE);//recibe el header
             return dataLength;
         }
 

@@ -21,6 +21,7 @@ namespace Client
            
             string parameters = $"{userName}{Protocol.MESSAGE_SEPARATOR}{password}";
             var message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_CLIENT_LOGIN, Protocol.OK_STATE, parameters);
+
             SendRequest(message, connection);
         }
 
@@ -54,6 +55,7 @@ namespace Client
 
         public static void FollowUser(ClientSocket connection)
         {
+            //Previa busqueda?
             Console.WriteLine("Seguimiento de Usuarios");
             Console.WriteLine("-----------------------");
             Console.WriteLine("");
@@ -76,6 +78,7 @@ namespace Client
 
             if (resp.ToLower().Equals("s"))
             {
+                //message = message + "#";
                 List<string> images = new List<string>();
                 List<string> paths = new List<string>();
                 int imageNumber = 0;
@@ -92,6 +95,13 @@ namespace Client
                     Console.Write("Desea adjuntar otra imagen? (S/N) ");
                     resp = Console.ReadLine();
                 }
+                /*message = message + images.Count.ToString() + "#";
+                message = message + images[0];
+                for (int i = 1; i < images.Count; i++)
+                {
+                    message = message + "&" + images[i];
+                }
+                SendFileRequest(message, paths, connection);*/
             }
             else
             {
@@ -112,8 +122,8 @@ namespace Client
             string name = Console.ReadLine();
             if (string.IsNullOrEmpty(userName)) userName = "&";
             if (string.IsNullOrEmpty(name)) name = "&";
-          
-            string parameters = $"{userName}{Protocol.MESSAGE_SEPARATOR}{name}{Protocol.MESSAGE_SEPARATOR}";                  
+            string parameters = $"{userName}{Protocol.MESSAGE_SEPARATOR}" + 
+                $"{name}{Protocol.MESSAGE_SEPARATOR}";                  
             string message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_SEARCH, Protocol.OK_STATE, parameters);
             SendRequest(message, connection);
         }
@@ -178,6 +188,7 @@ namespace Client
 
         public static void Logout(ClientSocket connection)
         {
+            //Console.WriteLine("Usuario desconectado");
             string parameters = string.Empty;
             var message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_LOGOUT, Protocol.OK_STATE, parameters);
             SendRequest(message, connection);
@@ -185,8 +196,9 @@ namespace Client
 
         public static void SendRequest(string message, ClientSocket connection)
         {
-            byte[] data = Encoding.UTF8.GetBytes(message);
+            byte[] data = Encoding.UTF8.GetBytes(message);// Conversión de datos a bytes
             byte[] header = BuildHeader(message, connection.SessionToken);
+            Console.WriteLine("el session token dentro de SendRequest: " + connection.SessionToken);
             connection.SendHeader(header);
             connection.SendMessage(data);
         }
@@ -206,7 +218,7 @@ namespace Client
         {
             byte[] data = Encoding.UTF8.GetBytes(message);
             byte[] header = BuildHeader(message, connection.SessionToken);
-            connection.SendHeader(header);
+            connection.SendHeader(header/*, connection.SessionToken*/);
             connection.SendMessage(data);
             connection.SendFile(path);
         }
