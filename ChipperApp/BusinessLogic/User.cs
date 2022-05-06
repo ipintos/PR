@@ -23,7 +23,7 @@ namespace BusinessLogic
         public User()
         {
         }
-        
+
         public User(string username, string password, string name, string lastname, string picture, List<User> followers, List<User> following, List<Chip> chips, List<Notification> notifications)
         {
             this.username = username;

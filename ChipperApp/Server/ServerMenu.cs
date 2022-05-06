@@ -47,19 +47,9 @@ namespace Server
                 case 6:
                     server.TopUsersByActivity();
                     break;
-                case 7:
-                    server.CARGARDATOS();
-                    break;
-                case 8:
-                    server.MOSTRARCHIPS();
-                    break;
-                case 9:
-                    server.LEERFECHA();
-                    break;
                 default:
                     Console.WriteLine("La opción ingresada no es válida");
                     break;
-                //LAS OPCIONES 7, 8 y 9 ESTAN POR FUERA DEL MENU PARA PROBAR Y VERIFICAR
             }
         }
        
