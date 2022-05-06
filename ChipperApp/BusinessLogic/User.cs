@@ -61,9 +61,6 @@ namespace BusinessLogic
 
         public List<Notification> Notifications { get { return notifications; } }
 
-
-
-        //TO DO define eqals
         public override bool Equals(object user)
         {
             var newUser = user as User;

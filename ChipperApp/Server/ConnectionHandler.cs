@@ -181,9 +181,7 @@ namespace Server
             string sessionToken = headerParams[1];
             int dataLength = Int32.Parse(headerParams[0]);
             Header header = new(dataLength, sessionToken);
-            
             /*Console.WriteLine($"sessionToken: {sessionToken}");*/
-
             return header;
         }
 

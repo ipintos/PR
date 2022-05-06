@@ -45,14 +45,22 @@ namespace Server
 
         public string CreateNewUser(string username, string password, string name, string lastname, string picture)
         {
-            List<User> followers = new List<User>();
-            List<User> following = new List<User>();
-            List<Chip> chips = new List<Chip>();
-            List<Notification> notification = new List<Notification>();
+            User userFind = _chipper.users.Find(u => (u.Username == username));
+            if (userFind == null)
+            {
+                List<User> followers = new List<User>();
+                List<User> following = new List<User>();
+                List<Chip> chips = new List<Chip>();
+                List<Notification> notification = new List<Notification>();
 
-            User newUser = new User(username, password, name, lastname, picture, followers, following, chips, notification);
-            _chipper.AddUserToList(newUser);
-            return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_CLIENT_ADD_USER, Protocol.OK_STATE, $"El usuario {username} fue creado correctamente.");
+                User newUser = new User(username, password, name, lastname, picture, followers, following, chips, notification);
+                _chipper.AddUserToList(newUser);
+                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_CLIENT_ADD_USER, Protocol.OK_STATE, $"El usuario {username} fue creado correctamente.");
+            }
+            else
+            {
+                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_CLIENT_ADD_USER, Protocol.OK_STATE, $"El usuario {username} ya existe.");
+            }
         }
 
         public string SearchUsers(string username, string name, string session)
@@ -271,7 +279,6 @@ namespace Server
         public void CloseConnection()
         {
            /* return "CLIENT LOGOUT";*/
-
         }
 
         private static string BuildResponse(string method, int action, string state, string description)

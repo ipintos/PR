@@ -156,7 +156,7 @@ namespace Server
             Console.WriteLine(""); Console.WriteLine("");
         }
 
-        //DATOS PRECARGADOS
+        //AGREGADO POR FUERA DE LOS REQUERIMIENTOS PARA PRUEBAS
         public void CARGARDATOS()
         {
             List<User> followers1 = new List<User>();
@@ -220,34 +220,6 @@ namespace Server
             u3.Followers.Add(u5); u5.Following.Add(u3);
             u4.Followers.Add(u5); u5.Following.Add(u4);
 
-            /*
-
-            int id = _chipper.GetChipId() + 1;            
-            Chip chip11 = new Chip(id, user1, "publicacion1 del usuario 1", images1, DateTime.Now, replies1);            
-            u1.Chips.Add(chip11);
-            _chipper.Chips.Add(chip11);
-            _chipper.SetChipId(id);
-
-            id = _chipper.GetChipId() + 1;
-            Chip chip12 = new Chip(2, user1, "publicacion2 del usuario 1", images1, DateTime.Now, replies1);            
-            u1.Chips.Add(chip12);
-            _chipper.Chips.Add(chip12);
-            _chipper.SetChipId(id);
-
-            
-            List<User> fnot1 = _chipper.GetFollowers(u1);
-            foreach (User u in fnot1)
-            {
-                Notification not1 = new Notification(1, chip11);
-                _chipper.GetNotifications(u).Add(not1);
-                _chipper.Notification.Add(not1);
-                
-                Notification not2 = new Notification(2, chip12);
-                _chipper.GetNotifications(u).Add(not2);
-                _chipper.Notification.Add(not2);                
-            }
-            */            
-
             Console.WriteLine("Datos"); 
             foreach(User u in _chipper.Users)
             {
@@ -292,6 +264,5 @@ namespace Server
             }
 
         }
-
     }
 }
