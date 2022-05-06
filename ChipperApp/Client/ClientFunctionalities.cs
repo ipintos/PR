@@ -21,7 +21,6 @@ namespace Client
            
             string parameters = $"{userName}{Protocol.MESSAGE_SEPARATOR}{password}";
             var message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_CLIENT_LOGIN, Protocol.OK_STATE, parameters);
-
             SendRequest(message, connection);
         }
 
@@ -55,7 +54,6 @@ namespace Client
 
         public static void FollowUser(ClientSocket connection)
         {
-            //Previa busqueda?
             Console.WriteLine("Seguimiento de Usuarios");
             Console.WriteLine("-----------------------");
             Console.WriteLine("");
@@ -124,8 +122,8 @@ namespace Client
             string name = Console.ReadLine();
             if (string.IsNullOrEmpty(userName)) userName = "&";
             if (string.IsNullOrEmpty(name)) name = "&";
-            string userLogged = ""; // ChipperInstance._userLogged; el usuario logueado se debe controlar desde el server
-            string message = "REQ" + "#" + "03" + "#" + userLogged + "#" + userName + "#" + name;
+            string parameters = $"{userName}{Protocol.MESSAGE_SEPARATOR}{name}{Protocol.MESSAGE_SEPARATOR}";                  
+            string message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_SEARCH, Protocol.OK_STATE, parameters);
             SendRequest(message, connection);
         }
 
@@ -163,12 +161,14 @@ namespace Client
 
         public static void Logout(ClientSocket connection)
         {
-            Console.WriteLine("Usuario desconectado");
+            string parameters = string.Empty;
+            var message = BuildRequest(Protocol.METHOD_REQUEST, Protocol.ACTION_LOGOUT, Protocol.OK_STATE, parameters);
+            SendRequest(message, connection);
         }
 
         public static void SendRequest(string message, ClientSocket connection)
         {
-            byte[] data = Encoding.UTF8.GetBytes(message);// Conversión de datos a bytes
+            byte[] data = Encoding.UTF8.GetBytes(message);
             byte[] header = BuildHeader(message, connection.SessionToken);
             connection.SendHeader(header);
             connection.SendMessage(data);
@@ -189,7 +189,7 @@ namespace Client
         {
             byte[] data = Encoding.UTF8.GetBytes(message);
             byte[] header = BuildHeader(message, connection.SessionToken);
-            connection.SendHeader(header/*, connection.SessionToken*/);
+            connection.SendHeader(header);
             connection.SendMessage(data);
             connection.SendFile(path);
         }

@@ -11,11 +11,11 @@ namespace BusinessLogic
     public class ChipperInstance
     {
         private static ChipperInstance _instance;
-        public List<User> users;
-        public List<Chip> chips;
-        public List<Notification> notifications;
-        public List<User> usersLogged;
-        public List<Session> _sessions;
+        private List<User> users;
+        private List<Chip> chips;
+        private List<Notification> notifications;
+        private List<User> usersLogged;
+        private List<Session> _sessions;
         /*public List<User> usersBlocked;*/
         /*public static string _userLogged;*/
         
@@ -45,7 +45,7 @@ namespace BusinessLogic
 
         public List<User> Users { get { return users; } set { users = value; } }
         public List<Chip> Chips { get { return chips; } set { chips = value; } }
-        public List<Notification> Notification { get { return notifications; } set { notifications = value; } }
+        public List<Notification> Notifications { get { return notifications; } set { notifications = value; } }
         public List<User> UsersLoggd { get { return usersLogged; } set { usersLogged = value; } }
        /* public List<User> UsersBlocked { get { return usersBlocked; } set { usersBlocked = value; } }*/
 

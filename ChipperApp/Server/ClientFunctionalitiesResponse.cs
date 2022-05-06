@@ -19,76 +19,92 @@ namespace Server
 
         public string Login(string username, string password)
         {
-            string description;
+            string description = "Ocurrió un error al procesar la consulta.";
+            string state = Protocol.ERROR_STATE;
             try
             {
                 if (!_chipper.ValidateUser(username, password))
                 {
                     description = "Usuario y contraseña no válidos.";
+                    state = Protocol.ERROR_STATE;
                 }
                 else if (_chipper.IsBlockedUser(username))
                 {
                     description = "El usuario se encuentra bloqueado";
+                    state = Protocol.ERROR_STATE;
                 }
                 else
                 {
                     description = _chipper.CreateSessionToken(username);
-                  /*  Console.WriteLine($"Creó el token: {description}");*/
+                    state = Protocol.OK_STATE;
                 }
-                return BuildResponse(Protocol.METHOD_REQUEST, Protocol.ACTION_CLIENT_LOGIN, Protocol.OK_STATE, description);
+                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_CLIENT_LOGIN, state, description);
             }
             catch (Exception)
             {
-                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_LOGOUT, Protocol.ERROR_STATE, "Ocurrió un error al procesar la consulta.");
+                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_CLIENT_LOGIN, state, description);
             }
         }
 
         public string CreateNewUser(string username, string password, string name, string lastname, string picture)
         {
-            User userFind = _chipper.users.Find(u => (u.Username == username));
-            if (userFind == null)
+            string description = "Ocurrió un error al procesar la consulta.";
+            string state = Protocol.ERROR_STATE;
+            try
             {
-                List<User> followers = new List<User>();
-                List<User> following = new List<User>();
-                List<Chip> chips = new List<Chip>();
-                List<Notification> notification = new List<Notification>();
-
-                User newUser = new User(username, password, name, lastname, picture, followers, following, chips, notification);
-                _chipper.AddUserToList(newUser);
-                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_CLIENT_ADD_USER, Protocol.OK_STATE, $"El usuario {username} fue creado correctamente.");
+                User newUser = new(username, password, name, lastname, picture, new List<User>(), new List<User>(), new List<Chip>(), new List<Notification>());
+                if (_chipper.Users.Contains(newUser))
+                {
+                    description = $"El usuario {username} ya existe.";
+                    state = Protocol.ERROR_STATE;
+                }
+                else
+                {
+                    _chipper.AddUserToList(newUser);
+                    description = $"El usuario {username} fue creado correctamente.";
+                }
+                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_CLIENT_ADD_USER, Protocol.OK_STATE, description);
             }
-            else
+            catch
             {
-                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_CLIENT_ADD_USER, Protocol.OK_STATE, $"El usuario {username} ya existe.");
+                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_CLIENT_ADD_USER, state, description);
             }
         }
 
         public string SearchUsers(string username, string name, string session)
         {
+            string description = "Ocurrió un error al procesar la consulta.";
+            string state = Protocol.ERROR_STATE;
             try
             {
                 List<User> usersSearch = new List<User>();
-                usersSearch = _chipper.users.FindAll(u => (u.Name == name)); //agrega a la lista todos los que tienen el nombre name
-                User userFind = _chipper.users.Find(u => (u.Username == username)); //busca si hay usuario cuyo userName sea username
-                if (userFind != null) //si existe el usuario con el userName buscado
+                usersSearch = _chipper.Users.FindAll(u => (u.Name == name)); //agrega a la lista todos los que tienen el nombre name
+                
+                User userByUsername = new(username);
+                if(_chipper.Users.Contains(userByUsername))
                 {
-                    User userFindUnique = usersSearch.Find(u => (u.Username == userFind.Username)); //Verifica que no haya sido ingresado por nombre en la busqueda anterior
-                    if (userFindUnique == null)
-                        {
-                            usersSearch.Add(userFind);
-                        }
+                    usersSearch.Add(userByUsername);
                 }
-                //string reply = "RES" + "#" + "03" + "#"; No se necesita armar la respuesta, lo hace el buildResponse
-                string reply = String.Empty;
-                foreach (User u in usersSearch)
-                {                    
-                    reply = reply + u.Username + "&";
+
+                if(usersSearch.Count > 0)
+                {
+                    description = string.Empty;
+                    foreach (User u in usersSearch)
+                    {
+                        description += u.Username + "&";
+                    }
+                    state = Protocol.OK_STATE;
                 }
-                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_SEARCH, Protocol.OK_STATE, reply);
+                else
+                {
+                    description = "No se encontraron usuarios para los valores ingresados.";
+                    state = Protocol.ERROR_STATE;
+                }
+                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_SEARCH, state, description);
             }
-            catch (Exception)
+            catch
             {
-                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_SEARCH, Protocol.ERROR_STATE, "Ocurrió un error en la búsqueda de usuario.");
+                return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_CLIENT_ADD_USER, state, description);
             }
         }
 
@@ -96,7 +112,8 @@ namespace Server
         {
             try
             {
-                User userFollow = _chipper.users.Find(u => (u.Username == username));
+                User userFollow = _chipper.Users.Find(u => (u.Username == username));
+                User user = GetLoggedUser(session);
                 if (userFollow != null)
                 {
                     //userLogged.Following.Add(userFollow); //Necesito el usuario logueado para guardar en las listas de followes y following
@@ -116,10 +133,9 @@ namespace Server
         {
             try
             {
-                User user = _chipper.users.Find(u => (u.Username == username));
-                Chip newChip = CreateNewChip(chip, session); //al crearlo ya lo agrega al usuario  logueado
-                _chipper.chips.Add(newChip); //lo agrega a la lista general de chips
-
+                User user = GetLoggedUser(session);                                
+                Chip newChip = CreateNewChip(chip, user); //al crearlo ya lo agrega al usuario  logueado
+                _chipper.Chips.Add(newChip); //lo agrega a la lista general de chips
                 List<User> followers = _chipper.GetFollowers(user); //notificaciones para los seguidores
                 foreach (User u in followers)
                 {
@@ -127,7 +143,7 @@ namespace Server
                     Notification notification = new Notification(notificationid, newChip);
 
                     _chipper.GetNotifications(u).Add(notification);
-                    _chipper.Notification.Add(notification);
+                    _chipper.Notifications.Add(notification);
 
                     _chipper.SetNotificationId(notificationid);
                 }
@@ -142,7 +158,7 @@ namespace Server
 
 
         //create chip sin imagenes
-        public Chip CreateNewChip (string chip, string session)
+        private Chip CreateNewChip (string chip, User user)
         {
             List<Chip> replies = new List<Chip>();
             List<string> images = new List<string>();
@@ -187,7 +203,9 @@ namespace Server
             try
             {
                 string reply = string.Empty;
-                User userProfile = _chipper.users.Find(u => (u.Username == username));
+                int followers = 0;
+                int following = 0;
+                User userProfile = _chipper.Users.Find(u => (u.Username == username));
                 if (userProfile != null)
                 {
                     reply = reply + userProfile.Username + "&" + userProfile.Name + "&" + userProfile.Lastname + "&" + userProfile.Following.Count + "&" + userProfile.Followers.Count + "&";
@@ -197,7 +215,8 @@ namespace Server
                         Console.WriteLine(c.Content);
                         reply = reply + c.Content + "|";
                     }
-                }
+                    reply = reply.Remove(reply.Length - 1, 1); //Elimna el ultimo caracter, | si tiene chips, & sino tiene                
+                }                
                 return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_VIEW_PROFILE, Protocol.OK_STATE, reply);
             }
             catch
@@ -211,8 +230,8 @@ namespace Server
             try
             {
                 string reply = string.Empty;
-                User user = _chipper.users.Find(u => (u.Username == username));
-                if (user != null)
+                User userReply = _chipper.Users.Find(u => (u.Username == username));
+                if (userReply != null)
                 {
                     reply = user.Username + "@"; //No devuelve el usuario logueado en el mensaje de respuesta.
                                                  //Se necesita el user al que se le responde, porque solo se envia chipid y contenido en la respuesta. Se necesita en la vuelta para 
@@ -236,11 +255,10 @@ namespace Server
             try
             {
                 User user = GetLoggedUser(session);
-                Chip chipReply = CreateNewChip(chipreply, session);
-                _chipper.chips.Add(chipReply); //lo agrega a la lista general de chips
-
+                Chip chipReply = CreateNewChip(chipreply, user);
+                _chipper.Chips.Add(chipReply); //lo agrega a la lista general de chips
                 int chipIdOriginal = Convert.ToInt32(chipid);
-                Chip chipOriginal = _chipper.chips.Find(c => (c.ChipId == chipIdOriginal));
+                Chip chipOriginal = _chipper.Chips.Find(c => (c.ChipId == chipIdOriginal));
                 chipOriginal.Replies.Add(chipReply); //lo agrega a la lista de replies del usario de la publiacacion original
 
                 return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_REPLY_CHIP, Protocol.OK_STATE, "Respuesta publicada.");
@@ -266,9 +284,18 @@ namespace Server
             }
         }
 
-        public void CloseConnection()
+        public string ReplyNotification(string notificationid, string chipreply, string session)
         {
-           /* return "CLIENT LOGOUT";*/
+            int notificationOriginal = Convert.ToInt32(notificationid);
+            Notification notificationReplyChip = _chipper.Notifications.Find(n => (n.NotificationId == notificationOriginal));
+            int chipOriginal = notificationReplyChip.Chip.ChipId;
+            string chipid = Convert.ToString(chipOriginal);
+            return ReplyChip(chipid, chipreply, session);            
+        }
+
+        public string CloseConnection()
+        {
+            return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_DISCONNECT, Protocol.OK_STATE, "La conexión fue finalizada correctamente.");
         }
 
         private static string BuildResponse(string method, int action, string state, string description)
@@ -281,17 +308,13 @@ namespace Server
 
         public bool IsLoggedUser(string token)
         {
-            Console.WriteLine($"el token es {token}");
             User user = _chipper.Users.Find(user => user.SessionToken == token);
-            Console.WriteLine($"encuentra al usuario {_chipper.UsersLoggd.Contains(user)}");
             return _chipper.UsersLoggd.Contains(user);
         }
 
-        public User GetLoggedUser(string token)
+        private User GetLoggedUser(string token)
         {
-            Console.WriteLine($"el token es {token}");
             User user = _chipper.Users.Find(user => user.SessionToken == token);
-            Console.WriteLine($"encuentra al usuario {_chipper.UsersLoggd.Contains(user)}");
             return user;
         }
     }

@@ -61,7 +61,7 @@ namespace Server
             }
             catch(Exception e)
             {
-                Console.WriteLine($"Error al iniciar ListenForClients.");
+                Console.WriteLine($"Error al iniciar la escucha de clientes.");
             }
         }
 
@@ -80,7 +80,7 @@ namespace Server
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Inció un nuevo cliente");
+                Console.WriteLine($"Error al iniciar el cliente");
             }
         }
 

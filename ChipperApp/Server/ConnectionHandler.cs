@@ -16,7 +16,6 @@ namespace Server
         public static void HandleClient(Socket connection)
         {
             var socketHelper = new SocketHelper(connection);
-            Console.WriteLine($"Inició el cliente: {Thread.CurrentThread.ManagedThreadId}");
             bool connected = true;
             while (connected)
             {
@@ -26,7 +25,6 @@ namespace Server
                     int dataSize = requestHeader.Length;
                     string session = requestHeader.Session;
                     var content = ReceiveContent(socketHelper, dataSize);
-                   /* Console.WriteLine($"content {content}");*/
                     if (string.Equals(Parser.GetActionString(content), Protocol.CLIENT_END_CONNECTION_REQUEST_COMMAND))
                     {
                         CloseClientConnection(connection);
@@ -44,7 +42,7 @@ namespace Server
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Ocurrió un error en la conexión con el cliente.");
+                    Console.WriteLine($"Ocurrió un error en la comunicación");
                     connected = false;
                 }
             }
@@ -53,23 +51,25 @@ namespace Server
         public static void SendResponse(string message, SocketHelper helper)
         {
             byte[] data = Encoding.UTF8.GetBytes(message);// Conversión de datos a bytes
-            byte[] dataLength = BitConverter.GetBytes(data.Length);// Conversión del largo de los datos a bytes
-            SendResponseHeader(helper, message);//antes de enviar los datos, se manda el largo al servidor
+            byte[] dataLength = BitConverter.GetBytes(data.Length);// Conversión del largo de los datos a bytes*/
+
+            string dataSize = data.Length.ToString();
+            SendResponseHeader(helper, dataSize);//antes de enviar los datos, se manda el largo al servidor
             SendResponseContent(helper, data);
         }
 
-        private static byte[] BuildHeader(string message)
+        private static byte[] BuildHeader(string dataSize)
         {
-            string headerMessage = message.Length + Protocol.MESSAGE_SEPARATOR;// + "00000000";
+            string headerMessage = dataSize + Protocol.MESSAGE_SEPARATOR;
             while (headerMessage.Length < Protocol.HEADER_DATA_SIZE)
                 headerMessage += Protocol.MESSAGE_SEPARATOR;
             byte[] header = Encoding.UTF8.GetBytes(headerMessage);
             return header;
         }
 
-        private static void SendResponseHeader(SocketHelper helper, string resultMessage)
+        private static void SendResponseHeader(SocketHelper helper, string dataSize)
         {
-            byte[] header = BuildHeader(resultMessage);
+            byte[] header = BuildHeader(dataSize);
             helper.Send(header);
         }
         
@@ -89,9 +89,10 @@ namespace Server
             string chip;
             string image;
 
-            if (!(execute.IsLoggedUser(header.Session)) && (action != Protocol.ACTION_CLIENT_LOGIN) && (action != Protocol.ACTION_CLIENT_ADD_USER) )
+            if (!(execute.IsLoggedUser(header.Session)) && (action != Protocol.ACTION_CLIENT_LOGIN) && (action != Protocol.ACTION_CLIENT_ADD_USER))
             {
-                return BuildResponse(Protocol.METHOD_REQUEST, action, Protocol.ERROR_STATE, $"Debe iniciar sesión para realizar la acción {action}"); ;
+                string responseMessage = $"Debe iniciar sesión para realizar la acción {action}".Trim();
+                return BuildResponse(Protocol.METHOD_REQUEST, action, Protocol.ERROR_STATE, responseMessage);
             }
             switch (action)
             {
@@ -177,7 +178,6 @@ namespace Server
             string sessionToken = headerParams[1];
             int dataLength = Int32.Parse(headerParams[0]);
             Header header = new(dataLength, sessionToken);
-            /*Console.WriteLine($"sessionToken: {sessionToken}");*/
             return header;
         }
 
