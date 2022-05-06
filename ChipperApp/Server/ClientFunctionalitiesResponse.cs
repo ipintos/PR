@@ -33,7 +33,7 @@ namespace Server
                 else
                 {
                     description = _chipper.CreateSessionToken(username);
-                    Console.WriteLine($"Creó el token: {description}");
+                  /*  Console.WriteLine($"Creó el token: {description}");*/
                 }
                 return BuildResponse(Protocol.METHOD_REQUEST, Protocol.ACTION_CLIENT_LOGIN, Protocol.OK_STATE, description);
             }
@@ -61,9 +61,6 @@ namespace Server
             {
                 return BuildResponse(Protocol.METHOD_RESPONSE, Protocol.ACTION_CLIENT_ADD_USER, Protocol.OK_STATE, $"El usuario {username} ya existe.");
             }
-
-
-            
         }
 
         public string SearchUsers(string username, string name, string session)

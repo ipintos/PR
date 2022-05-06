@@ -109,8 +109,8 @@ namespace Server
                 bool inRange = DateInRange(c.DatePosted, startDate, endDate);
                 if (inRange)
                 {
-                    //User user = _chipper.Users.Find(u => u.Username == c.User);
-                    ClientActivity cl = topUsersActivity.Find(cl => cl.User == c.User);
+                    User user = c.User;
+                    ClientActivity cl = topUsersActivity.Find(cl => cl.User == c.User.Username);
                     if (cl == null)
                     {
                         ClientActivity clnew = new ClientActivity(user.Username,1);                        
@@ -219,7 +219,6 @@ namespace Server
             u3.Followers.Add(u4); u4.Following.Add(u3);
             u3.Followers.Add(u5); u5.Following.Add(u3);
             u4.Followers.Add(u5); u5.Following.Add(u4);
-            
 
             Console.WriteLine("Datos"); 
             foreach(User u in _chipper.Users)
@@ -264,27 +263,6 @@ namespace Server
                 }
             }
 
-        }
-
-        public void LEERFECHA()
-        {
-            Console.Write("ingresar fecha DD/MM/AA :" );
-            string sFecha = Console.ReadLine();
-            DateTime fecha = Convert.ToDateTime(sFecha);
-            Console.WriteLine("fecha convertida: " + sFecha);
-            DateTime start = Convert.ToDateTime("10 / 02 / 2021");
-            DateTime end = Convert.ToDateTime("10 / 02 / 2022");
-            bool enRango = DateInRange(fecha, start, end);
-            Console.WriteLine("empieza: " + start);
-            Console.WriteLine("end: " + end);
-            if (enRango)
-            {
-                Console.WriteLine("en rango");
-            }
-            else
-            {
-                Console.WriteLine("por fuera");
-            }
         }
     }
 }

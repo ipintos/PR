@@ -198,7 +198,6 @@ namespace Client
         {
             byte[] data = Encoding.UTF8.GetBytes(message);// Conversión de datos a bytes
             byte[] header = BuildHeader(message, connection.SessionToken);
-            Console.WriteLine("el session token dentro de SendRequest: " + connection.SessionToken);
             connection.SendHeader(header);
             connection.SendMessage(data);
         }

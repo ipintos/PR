@@ -166,7 +166,9 @@ namespace BusinessLogic
         {
             Random random = new Random();
             const string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            Console.WriteLine($"token para {key}: {Enumerable.Repeat(characters, Protocol.TOKEN_DATA_SIZE).Select(s => s[random.Next(s.Length)]).ToArray()}");
+
+         /*   Console.WriteLine($"token para {key}: {Enumerable.Repeat(characters, Protocol.TOKEN_DATA_SIZE).Select(s => s[random.Next(s.Length)]).ToArray()}");*/
+
             return new string(Enumerable.Repeat(characters, Protocol.TOKEN_DATA_SIZE).Select(s => s[random.Next(s.Length)]).ToArray());
         }
 

@@ -53,13 +53,10 @@ namespace Server
                 case 8:
                     server.MOSTRARCHIPS();
                     break;
-                case 9:
-                    server.LEERFECHA();
-                    break;
+                //LAS OPCIONES 7 y 8 ESTAN FUERA DEL MENU PARA CARGAR DATOS Y PROBAR
                 default:
                     Console.WriteLine("La opción ingresada no es válida");
                     break;
-                //LAS OPCIONES 7, 8 y 9 ESTAN POR FUERA DEL MENU PARA PROBAR Y VERIFICAR
             }
         }
        

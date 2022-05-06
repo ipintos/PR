@@ -128,8 +128,15 @@ namespace Client
                             string[] notificationFields = n.Split("|");
                             Console.WriteLine("idNotificacion: " + notificationFields[0] + "  chip: " + notificationFields[1]);
                         }
-                        //Desde aqui se larga la posibilidad de responder a las notificaciones        
-                        ClientMenu.ExecuteMenuOption(Protocol.ACTION_NOTIFICATION_REPLY, this);
+
+                        Console.WriteLine("Desea responder una notificación? (S/N)");
+                        string resp = Console.ReadLine();
+                        if (resp.ToLower().Equals("s"))
+                        {
+                            //Desde aqui se larga la posibilidad de responder a las notificaciones        
+                            ClientMenu.ExecuteMenuOption(Protocol.ACTION_NOTIFICATION_REPLY, this);
+                        }                        
+
                         break;
                     case Protocol.ACTION_VIEW_PROFILE:
                         string[] userinfo = Parser.GetDescription(response).Split("&");                        

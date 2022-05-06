@@ -61,5 +61,11 @@ namespace BusinessLogic
 
         public List<Notification> Notifications { get { return notifications; } }
 
+        public override bool Equals(object user)
+        {
+            var newUser = user as User;
+            return this.Username == newUser.Username;
+        }
+
     }
 }
