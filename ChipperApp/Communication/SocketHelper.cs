@@ -50,7 +50,7 @@ namespace Communication
             catch(Exception ex)
             {
                 Console.WriteLine($"Ocurrió un error al recibir el mensaje {ex}");
-                 throw;
+                throw;
             }
            
         }

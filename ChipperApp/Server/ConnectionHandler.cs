@@ -84,11 +84,10 @@ namespace Server
             string response;
             ClientFunctionalitiesResponse execute = new();
             string username;
-            string password;            
+            string password;
             string name;
-            string lastname;
             string chip;
-            string picture;
+            string image;
 
             if (!(execute.IsLoggedUser(header.Session)) && (action != Protocol.ACTION_CLIENT_LOGIN) && (action != Protocol.ACTION_CLIENT_ADD_USER))
             {
@@ -100,10 +99,8 @@ namespace Server
                 case Protocol.ACTION_CLIENT_ADD_USER:
                     username = Parser.GetParameterAt(content, 0);
                     password = Parser.GetParameterAt(content, 1);
-                    name = Parser.GetParameterAt(content, 2);
-                    lastname = Parser.GetParameterAt(content, 3);
-                    picture = Parser.GetParameterAt(content, 4);                    
-                    response = execute.CreateNewUser(username, password,name, lastname,picture);
+                    string description = execute.CreateNewUser(username, password);
+                    response = execute.CreateNewUser(username, password);
                     break;
 
                 case Protocol.ACTION_CLIENT_LOGIN:
@@ -115,24 +112,23 @@ namespace Server
                 case Protocol.ACTION_SEARCH:
                     username = Parser.GetParameterAt(content, 0);
                     name = Parser.GetParameterAt(content, 1);                    
-                    response = execute.SearchUsers(username, name, header.Session); //header.Session es el sessionToken, con esto tengo que obtener el usuario logueado
+                    response = execute.SearchUsers(username, name, header.Session);
                     break;                
                 case Protocol.ACTION_FOLLOW:
-                    username = Parser.GetParameterAt(content, 0); //el username del usuario al cual quiero seguir
-                    response = execute.FollowUser(username, header.Session);
+                    //falta el usuario logueado?
+                    username = Parser.GetParameterAt(content, 0);
+                    name = Parser.GetParameterAt(content, 1);
+                    response = execute.FollowUser(username, header.Session);//falta el usuario logueado?
                     break;
-                case Protocol.ACTION_PUBLISH_CHIP:                    
+                case Protocol.ACTION_PUBLISH_CHIP:
+                    //falta el usuario logueado?
                     chip = Parser.GetParameterAt(content, 0);
-                    //picture = Parser.GetParameterAt(content, 1);                    
-                    response = execute.PublishChip(chip, header.Session);
+                    image = Parser.GetParameterAt(content, 1);
+                    response = execute.PublishChip( "usuario logueado", chip, image, header.Session);//falta el usuario logueado?
                     break;
-                case Protocol.ACTION_NOTIFICATION:                    
-                    response = execute.GetNotifications(header.Session);
-                    break;
-                case Protocol.ACTION_NOTIFICATION_REPLY:
-                    string notificationid = Parser.GetParameterAt(content, 0);
-                    string chipreply = Parser.GetParameterAt(content, 1);
-                    response = execute.ReplyNotification(notificationid, chipreply, header.Session);                    
+                case Protocol.ACTION_NOTIFICATION:
+                    //falta el usuario logueado?
+                    response = execute.GetNotifications(header.Session);//falta el usuario logueado?
                     break;
                 case Protocol.ACTION_VIEW_PROFILE:
                     username = Parser.GetParameterAt(content, 0); //el username del usuario al cual quiero ver el perfil
@@ -140,16 +136,16 @@ namespace Server
                     break;
                 case Protocol.ACTION_REPLY_CHIP_LIST:
                     username = Parser.GetParameterAt(content, 0); //el username del usuario al que se desea responder
-                    response = execute.ReplyChipList(username);
+                    response = execute.ReplyChipList(username, header.Session);
                     break;
-                case Protocol.ACTION_REPLY_CHIP:                    
-                    string chipid = Parser.GetParameterAt(content, 0);
-                    chipreply = Parser.GetParameterAt(content, 1);
+                case Protocol.ACTION_REPLY_CHIP:
+                    username = Parser.GetParameterAt(content, 0); //el username del usuario logueado
+                    string chipid = Parser.GetParameterAt(content, 1);
+                    string chipreply = Parser.GetParameterAt(content, 2);
                     response = execute.ReplyChip(chipid, chipreply, header.Session);
                     break;
+
                 case Protocol.ACTION_LOGOUT:
-                    response = execute.Logout(header.Session);
-                    break;
                 case Protocol.ACTION_DISCONNECT:
 
                 default:

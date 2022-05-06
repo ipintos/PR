@@ -21,11 +21,11 @@ namespace Server
         {
             Console.WriteLine("Lista de usuarios del sistema");
             Console.WriteLine("-----------------------------");
-            Console.WriteLine("");            
+            Console.WriteLine("");
             List<User> users = _chipper.AllUsers();
             foreach (User user in users)
             {
-                Console.WriteLine("User: " + user.Username + " Nombre: " + user.Name + " bloqueado: " + user.Blocked);
+                Console.WriteLine(user.Username);
             }
             Console.WriteLine(""); Console.WriteLine("");
         }
@@ -76,6 +76,7 @@ namespace Server
             }
             foreach(Chip chip in textFind)
             {
+                Console.WriteLine("Usuario: " + chip.User);
                 Console.WriteLine("Chip: " + chip.Content);
             }            
         }
@@ -94,9 +95,9 @@ namespace Server
         internal void TopUsersByActivity()
         {
             Console.WriteLine("Usuarios más activos");
-            Console.WriteLine("Periodo - Fecha desde (DD/MM/AA):  ");
+            Console.WriteLine("Periodo - Fecha desde:  ");
             string sDate = Console.ReadLine();
-            Console.WriteLine("Periodo - Fecha hasta (DD/MM/AA):  ");
+            Console.WriteLine("Periodo - Fecha hasta:  ");
             string eDate = Console.ReadLine();            
             DateTime startDate = Convert.ToDateTime(sDate);
             DateTime endDate = Convert.ToDateTime(eDate);
@@ -112,8 +113,8 @@ namespace Server
                     ClientActivity cl = topUsersActivity.Find(cl => cl.User == c.User.Username);
                     if (cl == null)
                     {
-                        ClientActivity clnew = new ClientActivity(user.Username,1);                        
-                        topUsersActivity.Add(clnew);
+                        cl.Activity = 1;
+                        topUsersActivity.Add(cl);
                     }
                     else
                     {
@@ -155,7 +156,7 @@ namespace Server
             Console.WriteLine(""); Console.WriteLine("");
         }
 
-        //AGREGADO POR FUERA DE LOS REQUERIMIENTOS PARA PRUEBAS
+      //AGREGADO POR FUERA DE LOS REQUERIMIENTOS PARA PRUEBAS
         public void CARGARDATOS()
         {
             List<User> followers1 = new List<User>();
@@ -218,7 +219,6 @@ namespace Server
             u3.Followers.Add(u4); u4.Following.Add(u3);
             u3.Followers.Add(u5); u5.Following.Add(u3);
             u4.Followers.Add(u5); u5.Following.Add(u4);
-            
 
             Console.WriteLine("Datos"); 
             foreach(User u in _chipper.Users)
@@ -260,26 +260,5 @@ namespace Server
             }
 
         }
-/*
-        public void LEERFECHA()
-        {
-            Console.Write("ingresar fecha DD/MM/AA :");
-            string sFecha = Console.ReadLine();
-            DateTime fecha = Convert.ToDateTime(sFecha);
-            Console.WriteLine("fecha convertida: " + sFecha);
-            DateTime start = Convert.ToDateTime("10 / 02 / 2021");
-            DateTime end = Convert.ToDateTime("10 / 02 / 2022");
-            bool enRango = DateInRange(fecha, start, end);
-            Console.WriteLine("empieza: " + start);
-            Console.WriteLine("end: " + end);
-            if (enRango)
-            {
-                Console.WriteLine("en rango");
-            }
-            else
-            {
-                Console.WriteLine("por fuera");
-            }
-        }*/
     }
 }

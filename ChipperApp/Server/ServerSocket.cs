@@ -133,7 +133,7 @@ namespace Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al cerrar la conexión desde el Server. {ex}");
+                Console.WriteLine($"Error al cerrar la conexión desde el Server.");
             }
         }
 

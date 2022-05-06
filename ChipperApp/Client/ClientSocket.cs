@@ -43,7 +43,7 @@ namespace Client
         public void ListenForMessages()
         {
             try
-            {                
+            {
                 ClientMenu.MenuClient();
                 while (_keepConnection)
                 {
@@ -101,7 +101,7 @@ namespace Client
                 switch (action)
                 {
                     case Protocol.ACTION_CLIENT_ADD_USER:
-                        Console.WriteLine(Parser.GetDescription(response)); 
+                        Console.WriteLine(Parser.GetDescription(response));
                         break;
                     case Protocol.ACTION_CLIENT_LOGIN:
                         Console.WriteLine(Parser.GetDescription(response));
@@ -119,7 +119,7 @@ namespace Client
                     case Protocol.ACTION_PUBLISH_CHIP:
                         Console.WriteLine(Parser.GetDescription(response));
                         break;
-                    case Protocol.ACTION_NOTIFICATION:                                        
+                    case Protocol.ACTION_NOTIFICATION:
                         string[] notifications = Parser.GetDescription(response).Split("&");
                         if (notifications.Length > 0)
                         {
@@ -128,7 +128,13 @@ namespace Client
                                 string[] notificationFields = n.Split("|");
                                 Console.WriteLine("idNotificacion: " + notificationFields[0] + "  chip: " + notificationFields[1]);
                             }
-                            ClientMenu.ExecuteMenuOption(Protocol.ACTION_NOTIFICATION_REPLY, this);
+                             Console.WriteLine("Desea responder una notificación? (S/N)");
+                              string resp = Console.ReadLine();
+                              if (resp.ToLower().Equals("s"))
+                              {
+                                  //Desde aqui se larga la posibilidad de responder a las notificaciones        
+                                  ClientMenu.ExecuteMenuOption(Protocol.ACTION_NOTIFICATION_REPLY, this);
+                              }  
                         }
                         else
                         {
@@ -141,16 +147,19 @@ namespace Client
                         Console.WriteLine("Usuario: " + userinfo[0]);
                         Console.WriteLine("Nombre: " + userinfo[1] + " " + userinfo[2]);
                         Console.WriteLine("Cantidad de seguidores: " + userinfo[3]);
-                        Console.WriteLine("Cantidad de cuentas que sigue: " + userinfo[4]);                        
+                        Console.WriteLine("Cantidad de cuentas que sigue: " + userinfo[4]);
+                        string[] chips =userinfo[5].Split("|");
                         Console.WriteLine("Publicaciones:");
-                        if (userinfo.Length > 5)
+                        if(chips.Length > 0)
                         {
-                            string[] chips =userinfo[5].Split("|");
                             foreach (String c in chips)
                             {
-                                string[] notificationFields = c.Split("|");
-                                Console.WriteLine(c);
-                            }
+                                string[] chips =userinfo[5].Split("|");
+                                foreach (String c in chips)
+                                {
+                                    string[] notificationFields = c.Split("|");
+                                    Console.WriteLine(c);
+                                }
                         }
                         else
                         {
@@ -170,6 +179,10 @@ namespace Client
                                 Console.WriteLine("idchip: " + chipFields[0] + "  chip: " + chipFields[1]);
                             }
                             //Desde aqui se ejcuta la opcion para responder a la publicación que se selecciona
+                            Console.Write("Ingresar el chip a responder: ");
+                          string idChip = Console.ReadLine();
+                          Console.Write("Ingresar la respuesta: ");
+                          string chipResponse = Console.ReadLine();
                             ClientMenu.ExecuteMenuOption(Protocol.ACTION_REPLY_CHIP, this);
                         }
                         else
@@ -181,11 +194,8 @@ namespace Client
                         Console.WriteLine(Parser.GetDescription(response));
                         break;
                     case Protocol.ACTION_LOGOUT:
-                        Console.WriteLine(Parser.GetDescription(response));
-                        _sessionToken = String.Empty;
                         break;
                     case Protocol.ACTION_DISCONNECT:
-                        CloseConnection();
                         break;
                 }
               
@@ -194,6 +204,7 @@ namespace Client
             {
                 Console.WriteLine(Parser.GetDescription(response));
             }
+            return Parser.GetParameterAt(response, 0);
         }
 
         public void CloseConnection()

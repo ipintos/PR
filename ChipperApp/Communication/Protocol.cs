@@ -27,7 +27,6 @@
         public const int ACTION_FOLLOW = 4;
         public const int ACTION_PUBLISH_CHIP = 5;
         public const int ACTION_NOTIFICATION = 6;
-        public const int ACTION_NOTIFICATION_REPLY = 16;
         public const int ACTION_VIEW_PROFILE = 7;
         public const int ACTION_REPLY_CHIP_LIST = 8;
         public const int ACTION_REPLY_CHIP = 18;

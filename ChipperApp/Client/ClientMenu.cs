@@ -19,7 +19,8 @@ namespace Client
             Console.WriteLine("6. Ver Notificaciones");
             Console.WriteLine("7. Ver Perfil y Publicaciones de un Usuario");
             Console.WriteLine("8. Responder a una Publicación");
-            Console.WriteLine("9. Cerrar sesión");            
+            Console.WriteLine("9. Cerrar sesión");
+            Console.WriteLine("10. Desconectarse");
             Console.WriteLine($"{Protocol.CLIENT_SHOW_MENU_COMMAND} - para mostrar el menú.");
             Console.WriteLine($"{Protocol.CLIENT_EXIT_COMMAND} - para cerrar la conexión.");
             Console.WriteLine("");
@@ -58,18 +59,11 @@ namespace Client
                     break;
 
                 case 8:
-                    ClientFunctionalities.ReplyChipList(connection);
+                    ClientFunctionalities.ReplyChip(connection);
                     break;
 
                 case 9:
                     ClientFunctionalities.Logout(connection);
-                    break;
-                case 16:
-                     ClientFunctionalities.NotificationReply(connection);
-                    break;
-
-                case 18:
-                    ClientFunctionalities.ReplyChip(connection);
                     break;
 
                 default:
