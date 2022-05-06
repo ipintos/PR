@@ -104,7 +104,7 @@ namespace Client
                         Console.WriteLine(Parser.GetDescription(response)); 
                         break;
                     case Protocol.ACTION_CLIENT_LOGIN:
-                        Console.WriteLine(Parser.GetDescription(response));
+                        //Console.WriteLine(Parser.GetDescription(response));
                         break;
                     case Protocol.ACTION_SEARCH:
                         string[] users = Parser.GetDescription(response).Split("&");
