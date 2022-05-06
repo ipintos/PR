@@ -11,14 +11,11 @@ namespace BusinessLogic
     public class ChipperInstance
     {
         private static ChipperInstance _instance;
-        public List<User> users;
-        public List<Chip> chips;
-        public List<Notification> notifications;
-        public List<User> usersLogged;
-        public List<Session> _sessions;
-        /*public List<User> usersBlocked;*/
-        /*public static string _userLogged;*/
-        
+        private List<User> users;
+        private List<Chip> chips;
+        private List<Notification> notifications;
+        private List<User> usersLogged;
+        private List<Session> _sessions;
         public static int _chipId = 0;
         public static int _notificationId = 0;
 

@@ -71,9 +71,18 @@ namespace Server
             try
             {
                 List<User> usersSearch = new List<User>();
-                usersSearch = _chipper.users.FindAll(u => (u.Name == name)); //agrega a la lista todos los que tienen el nombre name
-                User userFind = _chipper.users.Find(u => (u.Username == username)); //busca si hay usuario cuyo userName sea username
-                if (userFind != null) //si existe el usuario con el userName buscado
+                usersSearch = _chipper.Users.FindAll(u => (u.Name == name)); //agrega a la lista todos los que tienen el nombre name
+                
+                User userByUsername = new(username);
+                if(_chipper.Users.Contains(userByUsername))
+                {
+                    if (!usersSearch.Contains(userByUsername))
+                    {
+                        usersSearch.Add(userByUsername);
+                    }
+                }
+
+                if(usersSearch.Count > 0)
                 {
                     User userFindUnique = usersSearch.Find(u => (u.Username == userFind.Username)); //Verifica que no haya sido ingresado por nombre en la busqueda anterior
                     if (userFindUnique == null)
@@ -309,3 +318,4 @@ namespace Server
         }
     }
 }
+
