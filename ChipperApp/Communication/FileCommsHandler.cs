@@ -14,7 +14,7 @@ namespace Communication
         private readonly FileHandler _fileHandler;
         private readonly FileStreamHandler _fileStreamHandler;
         private readonly SocketHelper _socketHelper;
-        
+
         public FileCommsHandler(SocketHelper socket)
         {
             _conversionHandler = new ConversionHandler();
@@ -42,7 +42,7 @@ namespace Communication
         {
             int fileNameSize = _conversionHandler.ConvertBytesToInt(_socketHelper.Receive(Protocol.HEADER_DATA_SIZE));
             string fileName = _conversionHandler.ConvertBytesToString(_socketHelper.Receive(fileNameSize));
-            long fileSize = _conversionHandler.ConvertBytesToLong( _socketHelper.Receive(Protocol.FIXED_FILE_SIZE));
+            long fileSize = _conversionHandler.ConvertBytesToLong(_socketHelper.Receive(Protocol.FIXED_FILE_SIZE));
             ReceiveFileWithStreams(fileSize, fileName);
         }
 
@@ -96,10 +96,5 @@ namespace Communication
                 currentPart++;
             }
         }
-
-
-
     }
-
-
 }

@@ -84,7 +84,10 @@ namespace Server
                 User userByUsername = new(username);
                 if(_chipper.Users.Contains(userByUsername))
                 {
-                    usersSearch.Add(userByUsername);
+                    if (!usersSearch.Contains(userByUsername))
+                    {
+                        usersSearch.Add(userByUsername);
+                    }
                 }
 
                 if(usersSearch.Count > 0)
@@ -320,3 +323,4 @@ namespace Server
         }
     }
 }
+

@@ -16,9 +16,7 @@ namespace BusinessLogic
         private List<Notification> notifications;
         private List<User> usersLogged;
         private List<Session> _sessions;
-        /*public List<User> usersBlocked;*/
-        /*public static string _userLogged;*/
-        
+                
         public static int _chipId = 0;
         public static int _notificationId = 0;
 

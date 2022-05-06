@@ -21,5 +21,4 @@ namespace Server
 
         public Socket Connection { get { return _socket; } set { _socket = value; } }
     }
-
-}
+    }

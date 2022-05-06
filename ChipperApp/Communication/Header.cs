@@ -26,3 +26,4 @@ namespace Communication
         public string Session { get { return _sessionToken; } set { _sessionToken = value; } }
     }
 }
+
